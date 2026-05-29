@@ -30,7 +30,8 @@ const formattedPrice = computed(() => {
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
     currency: 'EUR',
-    maximumFractionDigits: 0
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   }).format(listing.value.price)
 })
 

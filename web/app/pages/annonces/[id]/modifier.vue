@@ -102,7 +102,7 @@ function toggleCategory(id: string) {
             <UTextarea v-model="description" :rows="6" />
           </UFormField>
           <UFormField label="Prix (€)" required>
-            <UInput v-model.number="price" type="number" min="0" step="1" icon="i-lucide-euro" size="lg" />
+            <UInput v-model.number="price" type="number" min="0" step="0.01" icon="i-lucide-euro" size="lg" />
           </UFormField>
         </div>
       </UCard>
