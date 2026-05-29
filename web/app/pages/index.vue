@@ -9,6 +9,7 @@ const selectedCategoryItem = ref<{ label: string, value: string } | null>(null)
 const cityRef = ref<{ name: string; region?: string } | null>(null)
 const priceMin = ref('')
 const priceMax = ref('')
+const { ids: recentlyViewedIds, ready: recentlyViewedReady, clearRecentlyViewedListings } = useRecentlyViewedListings()
 
 // Fetch categories
 const { data: categories } = await useFetch('/api/categories', { key: 'categories' })
@@ -24,8 +25,22 @@ const categoryItems = computed(() => {
 
 // Fetch recent listings
 const { data: recentData, status: recentStatus } = await useFetch('/api/listings', {
+  key: 'home-recent-listings',
   params: { limit: '8', sort: 'recent' }
 })
+
+const { data: recentlyViewedData, status: recentlyViewedStatus } = await useFetch('/api/listings/batch', {
+  server: false,
+  params: computed(() => ({ ids: recentlyViewedIds.value.join(',') })),
+  watch: [recentlyViewedIds]
+})
+
+const recentlyViewedListings = computed(() => recentlyViewedData.value?.listings || [])
+const shouldShowRecentlyViewed = computed(() => (
+  recentlyViewedReady.value
+  && recentlyViewedIds.value.length > 0
+  && (recentlyViewedStatus.value === 'pending' || recentlyViewedListings.value.length > 0)
+))
 
 function handleSearch() {
   const query: Record<string, string> = {}
@@ -43,6 +58,10 @@ function selectCategory(slug: string) {
     path: '/annonces',
     query: { category: slug }
   })
+}
+
+function clearRecentlyViewed() {
+  clearRecentlyViewedListings()
 }
 </script>
 
@@ -134,6 +153,29 @@ function selectCategory(slug: string) {
             @click="selectCategory(cat.slug)"
           />
         </div>
+      </div>
+    </section>
+
+    <!-- Recently viewed listings -->
+    <section
+      v-if="shouldShowRecentlyViewed"
+      class="py-12 px-4 hero-gradient-subtle"
+    >
+      <div class="max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold">Annonces récemment consultées</h2>
+          <UButton
+            variant="ghost"
+            label="Effacer l'historique"
+            icon="i-lucide-trash-2"
+            @click="clearRecentlyViewed"
+          />
+        </div>
+
+        <ListingGrid
+          :listings="recentlyViewedListings"
+          :loading="recentlyViewedStatus === 'pending'"
+        />
       </div>
     </section>
 

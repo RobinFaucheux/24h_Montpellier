@@ -31,6 +31,13 @@ const emit = defineEmits<{
 const selectedCity = ref<CityItem | null>(props.modelValue ? toCityItem(props.modelValue) : null)
 const searchTerm = ref(props.modelValue?.name || '')
 const cities = ref<CityItem[]>([])
+const displayedCities = computed(() => {
+  if (!selectedCity.value) return cities.value
+
+  return cities.value.some(city => city.code === selectedCity.value?.code)
+    ? cities.value
+    : [selectedCity.value, ...cities.value]
+})
 const loading = ref(false)
 let debounceTimer: ReturnType<typeof setTimeout>
 let searchId = 0
@@ -131,8 +138,6 @@ watch(selectedCity, (city) => {
   if (!value) {
     searchTerm.value = ''
     cities.value = []
-  } else {
-    searchTerm.value = value.name
   }
 
   emit('update:modelValue', value)
@@ -154,7 +159,7 @@ onBeforeUnmount(() => {
   <UInputMenu
     v-model="selectedCity"
     v-model:search-term="searchTerm"
-    :items="cities"
+    :items="displayedCities"
     :placeholder="placeholder || 'Rechercher une ville...'"
     icon="i-lucide-map-pin"
     :loading="loading"
@@ -162,8 +167,6 @@ onBeforeUnmount(() => {
     by="code"
     ignore-filter
     clear
-    :reset-search-term-on-blur="false"
-    :reset-search-term-on-select="false"
   >
     <template #item-label="{ item }">
       <div class="min-w-0">
