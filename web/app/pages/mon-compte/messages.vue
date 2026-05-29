@@ -46,12 +46,12 @@ watch(() => route.query.conversation, (id) => {
 </script>
 
 <template>
-  <div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-4">
     <h1 class="text-3xl font-bold mb-2">Messages</h1>
-    <p class="text-muted mb-8">Vos conversations avec les vendeurs et acheteurs</p>
+    <p class="text-muted mb-4">Vos conversations avec les vendeurs et acheteurs</p>
 
     <!-- Navigation tabs -->
-    <div class="flex gap-2 mb-8 flex-wrap">
+    <div class="flex gap-2 mb-4 flex-wrap">
       <UButton to="/mon-compte" variant="ghost" icon="i-lucide-user" label="Profil" />
       <UButton to="/mon-compte/mes-annonces" variant="ghost" icon="i-lucide-package" label="Mes annonces" />
       <UButton to="/mon-compte/favoris" variant="ghost" icon="i-lucide-heart" label="Favoris" />
