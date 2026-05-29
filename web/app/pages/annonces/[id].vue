@@ -309,6 +309,7 @@ function nextImage() {
               v-model="contactMessage"
               placeholder="Bonjour, je suis intéressé(e) par votre annonce..."
               :rows="4"
+              class="w-full"
             />
           </UFormField>
         </div>

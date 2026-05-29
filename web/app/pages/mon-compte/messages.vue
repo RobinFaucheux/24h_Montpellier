@@ -59,9 +59,9 @@ watch(() => route.query.conversation, (id) => {
     </div>
 
     <UCard :ui="{ body: 'p-0' }">
-      <div class="grid grid-cols-1 md:grid-cols-3 min-h-[500px]">
+      <div class="grid grid-cols-1 md:grid-cols-3 h-[50vh] overflow-hidden">
         <!-- Conversation list -->
-        <div class="md:col-span-1 border-r border-gray-200 dark:border-gray-700 overflow-y-auto max-h-[600px]">
+        <div class="md:col-span-1 border-r border-gray-200 dark:border-gray-700 overflow-y-auto min-h-0">
           <ConversationList
             :conversations="conversations || []"
             :active-id="activeConversationId"
@@ -70,7 +70,7 @@ watch(() => route.query.conversation, (id) => {
         </div>
 
         <!-- Chat window -->
-        <div class="md:col-span-2 h-[600px]">
+        <div class="md:col-span-2 min-h-0 overflow-hidden">
           <template v-if="loadingConversation">
             <div class="h-full flex items-center justify-center">
               <UIcon name="i-lucide-loader-2" class="text-3xl text-muted animate-spin" />

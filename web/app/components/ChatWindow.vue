@@ -81,7 +81,7 @@ watch(() => props.conversation.messages.length, scrollToBottom)
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col h-full overflow-hidden">
     <!-- Header -->
     <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3 shrink-0">
       <NuxtLink :to="`/annonces/${conversation.listing.id}`" class="flex items-center gap-3 flex-1 min-w-0">
@@ -102,7 +102,7 @@ watch(() => props.conversation.messages.length, scrollToBottom)
     <!-- Messages -->
     <div
       ref="messagesContainer"
-      class="flex-1 overflow-y-auto p-4 space-y-4 chat-messages"
+      class="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 chat-messages"
     >
       <div v-for="group in groupedMessages" :key="group.date">
         <div class="flex items-center justify-center my-4">
