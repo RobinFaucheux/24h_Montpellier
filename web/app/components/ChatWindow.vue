@@ -22,20 +22,107 @@ const newMessage = ref('')
 const sending = ref(false)
 const messagesContainer = ref<HTMLElement>()
 
+// Local reactive state for messages to allow real-time appends
+const localMessages = ref([...props.conversation.messages])
+
+// Watch for conversation changes from parent
+watch(() => props.conversation.id, () => {
+  localMessages.value = [...props.conversation.messages]
+  connectWebSocket()
+})
+
+const ws = ref<WebSocket | null>(null)
+const otherUserTyping = ref(false)
+let typingTimeout: ReturnType<typeof setTimeout>
+
+async function connectWebSocket() {
+  if (ws.value) {
+    ws.value.close()
+  }
+
+  try {
+    const { ticket } = await $fetch('/api/auth/ws-ticket')
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const wsUrl = `${protocol}//${window.location.host}/_ws`
+    
+    ws.value = new WebSocket(wsUrl)
+    
+    ws.value.onopen = () => {
+      ws.value?.send(JSON.stringify({ type: 'auth', ticket }))
+    }
+
+    ws.value.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        
+        if (data.type === 'authenticated') {
+          ws.value?.send(JSON.stringify({ type: 'subscribe', conversationId: props.conversation.id }))
+        } 
+        else if (data.type === 'new_message') {
+          // If we sent it, we might have already cleared our input
+          if (!localMessages.value.find(m => m.id === data.message.id)) {
+            localMessages.value.push(data.message)
+            scrollToBottom()
+            emit('messageSent') // Notify parent to update sidebar
+          }
+        }
+        else if (data.type === 'user_typing') {
+          if (data.userId !== user.value?.id) {
+            otherUserTyping.value = true
+            clearTimeout(typingTimeout)
+            typingTimeout = setTimeout(() => {
+              otherUserTyping.value = false
+            }, 3000)
+          }
+        }
+      } catch (e) {
+        console.error('WS Error:', e)
+      }
+    }
+  } catch (e) {
+    console.error('Failed to get WS ticket', e)
+  }
+}
+
+onMounted(() => {
+  scrollToBottom()
+  connectWebSocket()
+})
+
+onUnmounted(() => {
+  if (ws.value) ws.value.close()
+})
+
+function sendTypingIndicator() {
+  if (ws.value && ws.value.readyState === WebSocket.OPEN) {
+    ws.value.send(JSON.stringify({ type: 'typing', conversationId: props.conversation.id }))
+  }
+}
+
 async function sendMessage() {
   if (!newMessage.value.trim() || sending.value) return
 
   sending.value = true
   try {
-    await $fetch('/api/messages', {
-      method: 'POST',
-      body: {
+    if (ws.value && ws.value.readyState === WebSocket.OPEN) {
+      ws.value.send(JSON.stringify({ 
+        type: 'message', 
         conversationId: props.conversation.id,
         content: newMessage.value.trim()
-      }
-    })
-    newMessage.value = ''
-    emit('messageSent')
+      }))
+      newMessage.value = ''
+    } else {
+      // Fallback to HTTP
+      await $fetch('/api/messages', {
+        method: 'POST',
+        body: {
+          conversationId: props.conversation.id,
+          content: newMessage.value.trim()
+        }
+      })
+      newMessage.value = ''
+      emit('messageSent')
+    }
   } catch (e) {
     console.error('Erreur envoi message:', e)
   } finally {
@@ -64,7 +151,7 @@ const groupedMessages = computed(() => {
   const groups: { date: string; messages: typeof props.conversation.messages }[] = []
   let currentDate = ''
 
-  for (const msg of props.conversation.messages) {
+  for (const msg of localMessages.value) {
     const date = new Date(msg.createdAt).toDateString()
     if (date !== currentDate) {
       currentDate = date
@@ -76,8 +163,7 @@ const groupedMessages = computed(() => {
   return groups
 })
 
-onMounted(scrollToBottom)
-watch(() => props.conversation.messages.length, scrollToBottom)
+watch(() => localMessages.value.length, scrollToBottom)
 </script>
 
 <template>
@@ -135,6 +221,15 @@ watch(() => props.conversation.messages.length, scrollToBottom)
           </div>
         </div>
       </div>
+      
+      <!-- Typing indicator -->
+      <div v-if="otherUserTyping" class="flex justify-start">
+        <div class="bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-2 flex items-center gap-1">
+          <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
+          <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+          <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+        </div>
+      </div>
     </div>
 
     <!-- Input -->
@@ -147,6 +242,7 @@ watch(() => props.conversation.messages.length, scrollToBottom)
           autoresize
           :maxrows="4"
           class="flex-1"
+          @input="sendTypingIndicator"
           @keydown.enter.exact.prevent="sendMessage"
         />
         <UButton
