@@ -59,14 +59,8 @@ const timeAgo = computed(() => {
   return date.toLocaleDateString('fr-FR')
 })
 
-const formattedPrice = computed(() => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(props.listing.price)
-})
+const { formatPrice } = useCurrency()
+const formattedPrice = computed(() => formatPrice(props.listing.price))
 </script>
 
 <template>

@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
       avatarUrl: true,
       city: true,
       region: true,
+      balance: true,
       createdAt: true
     }
   })

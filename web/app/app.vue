@@ -1,5 +1,11 @@
 <script setup>
 const { loggedIn, user, clear } = useUserSession()
+const { formatPrice, CURRENCY_SYMBOL } = useCurrency()
+
+const { data: profile } = await useFetch('/api/users/me', {
+  immediate: loggedIn.value,
+  watch: [loggedIn]
+})
 
 useHead({
   meta: [
@@ -161,13 +167,23 @@ onMounted(async () => {
           </div>
 
           <UDropdownMenu :items="userMenuItems">
-            <UButton
-              color="neutral"
-              variant="ghost"
-              :label="user?.name"
-              icon="i-lucide-user"
-              class="hidden sm:flex"
-            />
+            <div class="hidden sm:flex items-center gap-2 cursor-pointer">
+              <UButton
+                color="neutral"
+                variant="ghost"
+                :label="user?.name"
+                icon="i-lucide-user"
+              />
+              <UBadge
+                v-if="profile?.balance != null"
+                variant="subtle"
+                color="primary"
+                size="sm"
+                class="font-mono tabular-nums"
+              >
+                {{ formatPrice(profile.balance) }}
+              </UBadge>
+            </div>
             <UButton
               color="neutral"
               variant="ghost"

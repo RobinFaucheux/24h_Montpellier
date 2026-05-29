@@ -36,9 +36,7 @@ async function deleteListing() {
   }
 }
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price)
-}
+const { formatPrice } = useCurrency()
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })

@@ -3,6 +3,7 @@ definePageMeta({ middleware: 'auth' })
 useSeoMeta({ title: 'Mon profil — Trocdeal' })
 
 const { user, clear, fetch: refreshSession } = useUserSession()
+const { formatPrice, CURRENCY_NAME, CURRENCY_SYMBOL } = useCurrency()
 
 const { data: profile, refresh } = await useFetch('/api/users/me')
 
@@ -87,6 +88,22 @@ async function deleteAccount() {
       <UButton to="/mon-compte/favoris" variant="ghost" icon="i-lucide-heart" label="Favoris" />
       <UButton to="/mon-compte/messages" variant="ghost" icon="i-lucide-message-circle" label="Messages" />
     </div>
+
+    <!-- Balance card -->
+    <UCard class="mb-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <UIcon name="i-lucide-coins" class="text-primary text-xl" />
+          </div>
+          <div>
+            <p class="text-sm text-muted">Mon solde {{ CURRENCY_NAME }}</p>
+            <p class="text-2xl font-bold text-primary">{{ formatPrice(profile?.balance ?? 0) }}</p>
+          </div>
+        </div>
+        <UBadge variant="subtle" size="lg">{{ CURRENCY_SYMBOL }}</UBadge>
+      </div>
+    </UCard>
 
     <UAlert v-if="successMsg" icon="i-lucide-check-circle" :title="successMsg" color="success" class="mb-6" />
     <UAlert v-if="errorMsg" icon="i-lucide-alert-circle" :title="errorMsg" color="error" class="mb-6" />

@@ -25,14 +25,10 @@ const isOwner = computed(() => {
   return loggedIn.value && user.value?.id === listing.value?.userId
 })
 
+const { formatPrice } = useCurrency()
 const formattedPrice = computed(() => {
   if (!listing.value) return ''
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(listing.value.price)
+  return formatPrice(listing.value.price)
 })
 
 const formattedDate = computed(() => {
