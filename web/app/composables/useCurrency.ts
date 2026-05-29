@@ -1,4 +1,4 @@
-export const CURRENCY_SYMBOL = 'TC'
+export const CURRENCY_SYMBOL = 'SC'
 export const CURRENCY_NAME = 'ScamCoins'
 
 export function useCurrency() {
