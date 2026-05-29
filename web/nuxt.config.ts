@@ -24,16 +24,18 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     sessionPassword: process.env.NUXT_SESSION_PASSWORD || '',
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
     public: {
-      appName: 'Trocdeal'
+      appName: 'ScamMarket'
     }
   },
 
   app: {
     head: {
-      title: 'Trocdeal — Petites annonces en ligne',
+      title: 'ScamMarket — Petites annonces en ligne',
       meta: [
-        { name: 'description', content: 'Trocdeal : achetez et vendez des objets et services près de chez vous. Petites annonces gratuites entre particuliers.' }
+        { name: 'description', content: 'ScamMarket : achetez et vendez des objets et services près de chez vous. Petites annonces gratuites entre particuliers.' }
       ],
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

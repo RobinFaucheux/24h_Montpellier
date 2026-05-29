@@ -12,7 +12,7 @@ if (!listing.value || listing.value.userId !== user.value?.id) {
 }
 
 useSeoMeta({
-  title: `Modifier : ${listing.value.title} — Trocdeal`
+  title: `Modifier : ${listing.value.title} — ScamMarket`
 })
 
 // Pre-fill form

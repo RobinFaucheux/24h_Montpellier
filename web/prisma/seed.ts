@@ -35,10 +35,10 @@ async function main() {
   // Demo user
   const passwordHash = await hashPassword('demo1234')
   const demoUser = await prisma.user.upsert({
-    where: { email: 'demo@trocdeal.fr' },
+    where: { email: 'demo@ScamMarket.fr' },
     update: {},
     create: {
-      email: 'demo@trocdeal.fr',
+      email: 'demo@ScamMarket.fr',
       name: 'Marie Dupont',
       passwordHash,
       phone: '06 12 34 56 78',

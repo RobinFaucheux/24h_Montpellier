@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useSeoMeta({
-  title: 'Rechercher des annonces — Trocdeal',
+  title: 'Rechercher des annonces — ScamMarket',
   description: 'Parcourez des milliers de petites annonces. Filtrez par catégorie, localisation et prix.'
 })
 

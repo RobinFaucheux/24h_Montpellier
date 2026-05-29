@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
-useSeoMeta({ title: 'Mes annonces — Trocdeal' })
+useSeoMeta({ title: 'Mes annonces — ScamMarket' })
 
 const { data: listings, refresh, status } = await useFetch('/api/listings/my')
 

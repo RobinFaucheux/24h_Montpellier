@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
-  title: 'Trocdeal — Achetez et vendez près de chez vous',
-  description: 'Trocdeal : petites annonces gratuites entre particuliers. Achetez et vendez des objets et services dans toute la France.'
+  title: 'ScamMarket — Achetez et vendez près de chez vous',
+  description: 'ScamMarket : petites annonces gratuites entre particuliers. Achetez et vendez des objets et services dans toute la France.'
 })
 
 const searchQuery = ref('')

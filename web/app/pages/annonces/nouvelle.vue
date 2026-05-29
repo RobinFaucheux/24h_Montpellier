@@ -2,7 +2,7 @@
 definePageMeta({ middleware: 'auth' })
 
 useSeoMeta({
-  title: 'Déposer une annonce — Trocdeal'
+  title: 'Déposer une annonce — ScamMarket'
 })
 
 const router = useRouter()

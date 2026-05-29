@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
-useSeoMeta({ title: 'Mes favoris — Trocdeal' })
+useSeoMeta({ title: 'Mes favoris — ScamMarket' })
 
 const { data: favorites, refresh, status } = await useFetch('/api/favorites')
 

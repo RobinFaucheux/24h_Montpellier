@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
-useSeoMeta({ title: 'Messages — Trocdeal' })
+useSeoMeta({ title: 'Messages — ScamMarket' })
 
 const route = useRoute()
 

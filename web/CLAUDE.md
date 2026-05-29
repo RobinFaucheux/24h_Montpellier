@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Trocdeal** — a French classifieds/marketplace app (like LeBonCoin). Users can post listings, browse by category/city/price, favorite listings, and message sellers. Built with Nuxt 4 + Nuxt UI, Prisma ORM, and PostgreSQL.
+**ScamMarket** — a French classifieds/marketplace app (like LeBonCoin). Users can post listings, browse by category/city/price, favorite listings, and message sellers. Built with Nuxt 4 + Nuxt UI, Prisma ORM, and PostgreSQL.
 
 All application code lives in the `web/` directory.
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Connexion — Trocdeal' })
+useSeoMeta({ title: 'Connexion — ScamMarket' })
 
 const route = useRoute()
 const { fetch: refreshSession } = useUserSession()
@@ -40,7 +40,7 @@ async function login() {
           <UIcon name="i-lucide-repeat-2" class="text-white text-3xl" />
         </div>
         <h1 class="text-2xl font-bold">Connexion</h1>
-        <p class="text-muted mt-2">Connectez-vous à votre compte Trocdeal</p>
+        <p class="text-muted mt-2">Connectez-vous à votre compte ScamMarket</p>
       </div>
 
       <UCard>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Inscription — Trocdeal' })
+useSeoMeta({ title: 'Inscription — ScamMarket' })
 
 const { fetch: refreshSession } = useUserSession()
 
@@ -51,7 +51,7 @@ async function register() {
           <UIcon name="i-lucide-user-plus" class="text-white text-3xl" />
         </div>
         <h1 class="text-2xl font-bold">Créer un compte</h1>
-        <p class="text-muted mt-2">Rejoignez Trocdeal et commencez à vendre</p>
+        <p class="text-muted mt-2">Rejoignez ScamMarket et commencez à vendre</p>
       </div>
 
       <UCard>

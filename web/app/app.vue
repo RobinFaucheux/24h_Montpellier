@@ -19,8 +19,8 @@ useHead({
   }
 })
 
-const title = 'Trocdeal — Petites annonces en ligne'
-const description = 'Trocdeal : achetez et vendez des objets et services près de chez vous. Petites annonces gratuites entre particuliers.'
+const title = 'ScamMarket — Petites annonces en ligne'
+const description = 'ScamMarket : achetez et vendez des objets et services près de chez vous. Petites annonces gratuites entre particuliers.'
 
 useSeoMeta({
   title,
@@ -125,7 +125,7 @@ onMounted(async () => {
           <div class="w-8 h-8 rounded-lg hero-gradient flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
             <UIcon name="i-lucide-repeat-2" class="text-white text-lg" />
           </div>
-          <span class="font-bold text-xl tracking-tight hidden sm:inline">Trocdeal</span>
+          <span class="font-bold text-xl tracking-tight hidden sm:inline">ScamMarket</span>
         </NuxtLink>
 
         <UNavigationMenu :items="navItems" class="ml-6 hidden md:flex" />
@@ -221,7 +221,7 @@ onMounted(async () => {
     <UFooter>
       <template #left>
         <p class="text-sm text-muted">
-          Trocdeal — Petites annonces en ligne • © {{ new Date().getFullYear() }}
+          ScamMarket — Petites annonces en ligne • © {{ new Date().getFullYear() }}
         </p>
       </template>
 

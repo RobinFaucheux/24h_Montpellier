@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
-useSeoMeta({ title: 'Mon profil — Trocdeal' })
+useSeoMeta({ title: 'Mon profil — ScamMarket' })
 
 const { user, clear, fetch: refreshSession } = useUserSession()
 const { formatPrice, CURRENCY_NAME, CURRENCY_SYMBOL } = useCurrency()
@@ -101,7 +101,17 @@ async function deleteAccount() {
             <p class="text-2xl font-bold text-primary">{{ formatPrice(profile?.balance ?? 0) }}</p>
           </div>
         </div>
-        <UBadge variant="subtle" size="lg">{{ CURRENCY_SYMBOL }}</UBadge>
+        <div class="flex items-center gap-2">
+          <UBadge variant="subtle" size="lg">{{ CURRENCY_SYMBOL }}</UBadge>
+          <UButton
+            :to="`https://buy.stripe.com/test_6oU5kD6OX9gB6DHark2go00?client_reference_id=${profile?.id}`"
+            target="_blank"
+            icon="i-lucide-plus-circle"
+            label="Recharger (+10 TC)"
+            size="sm"
+            variant="soft"
+          />
+        </div>
       </div>
     </UCard>
 

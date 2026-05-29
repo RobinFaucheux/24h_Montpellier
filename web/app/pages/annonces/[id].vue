@@ -3,9 +3,7 @@ const route = useRoute()
 const { loggedIn, user } = useUserSession()
 const { recordViewedListing } = useRecentlyViewedListings()
 
-const { data: listing } = await useFetch(`/api/listings/${route.params.id}`, {
-  watch: [() => route.params.id]
-})
+const { data: listing, status, refresh } = await useFetch(`/api/listings/${route.params.id}`)
 
 if (!listing.value) {
   throw createError({ statusCode: 404, message: 'Annonce non trouvée' })
@@ -25,10 +23,13 @@ const isOwner = computed(() => {
   return loggedIn.value && user.value?.id === listing.value?.userId
 })
 
-const { formatPrice } = useCurrency()
 const formattedPrice = computed(() => {
   if (!listing.value) return ''
-  return formatPrice(listing.value.price)
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 2
+  }).format(listing.value.price)
 })
 
 const formattedDate = computed(() => {
@@ -245,7 +246,7 @@ watch(
                 variant="soft"
                 :icon="isFavorited ? 'i-lucide-heart' : 'i-lucide-heart'"
                 :label="isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'"
-                :color="isFavorited ? 'error' : 'neutral'"
+                :color="isFavorited ? 'red' : 'neutral'"
                 :loading="favLoading"
                 @click="toggleFavorite"
               />
@@ -314,13 +315,12 @@ watch(
           <p class="text-sm text-muted">
             À propos de : <strong>{{ listing?.title }}</strong>
           </p>
-          <UFormField label="Votre message" class="w-full">
+          <UFormField label="Votre message">
             <UTextarea
               v-model="contactMessage"
               placeholder="Bonjour, je suis intéressé(e) par votre annonce..."
               :rows="4"
               class="w-full"
-              style="width: 100%;"
             />
           </UFormField>
         </div>
