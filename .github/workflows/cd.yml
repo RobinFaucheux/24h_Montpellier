@@ -1,7 +1,9 @@
 name: cd
 
-on:
+on: 
   push:
+    paths:
+      - 'web/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
