@@ -118,7 +118,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UApp>
+  <UApp :toaster="{ position: 'bottom-right' }">
     <UHeader>
       <template #left>
         <NuxtLink to="/" class="flex items-center gap-2 group">

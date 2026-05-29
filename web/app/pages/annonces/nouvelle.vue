@@ -16,19 +16,17 @@ const imageUrls = ref<string[]>([])
 const cityData = ref<{ name: string; code: string; codeDepartement: string; codeRegion: string; region?: string } | null>(null)
 
 const loading = ref(false)
-const errorMsg = ref('')
+const toast = useToast()
 
 // Fetch categories
 const { data: categories } = await useFetch('/api/categories')
 
 async function submitListing() {
-  errorMsg.value = ''
-
-  if (!title.value.trim()) { errorMsg.value = 'Le titre est requis'; return }
-  if (!description.value.trim()) { errorMsg.value = 'La description est requise'; return }
-  if (price.value === undefined || price.value < 0) { errorMsg.value = 'Le prix est requis'; return }
-  if (!cityData.value) { errorMsg.value = 'La ville est requise'; return }
-  if (!categoryIds.value.length) { errorMsg.value = 'Sélectionnez au moins une catégorie'; return }
+  if (!title.value.trim()) { toast.add({ title: 'Erreur', description: 'Le titre est requis', color: 'error', icon: 'i-lucide-alert-circle' }); return }
+  if (!description.value.trim()) { toast.add({ title: 'Erreur', description: 'La description est requise', color: 'error', icon: 'i-lucide-alert-circle' }); return }
+  if (price.value === undefined || price.value < 0) { toast.add({ title: 'Erreur', description: 'Le prix est requis', color: 'error', icon: 'i-lucide-alert-circle' }); return }
+  if (!cityData.value) { toast.add({ title: 'Erreur', description: 'La ville est requise', color: 'error', icon: 'i-lucide-alert-circle' }); return }
+  if (!categoryIds.value.length) { toast.add({ title: 'Erreur', description: 'Sélectionnez au moins une catégorie', color: 'error', icon: 'i-lucide-alert-circle' }); return }
 
   loading.value = true
   try {
@@ -48,7 +46,12 @@ async function submitListing() {
     navigateTo(`/annonces/${listing.id}`)
   } catch (e: unknown) {
     const error = e as { data?: { message?: string } }
-    errorMsg.value = error.data?.message || 'Une erreur est survenue'
+    toast.add({
+      title: 'Erreur',
+      description: error.data?.message || 'Une erreur est survenue',
+      color: 'error',
+      icon: 'i-lucide-alert-circle'
+    })
   } finally {
     loading.value = false
   }
@@ -70,8 +73,6 @@ function toggleCategory(id: string) {
       <h1 class="text-3xl font-bold">Déposer une annonce</h1>
       <p class="text-muted mt-2">Remplissez le formulaire ci-dessous pour publier votre annonce</p>
     </div>
-
-    <UAlert v-if="errorMsg" icon="i-lucide-alert-circle" :title="errorMsg" color="error" class="mb-6" />
 
     <form @submit.prevent="submitListing" class="space-y-6">
       <UCard>
