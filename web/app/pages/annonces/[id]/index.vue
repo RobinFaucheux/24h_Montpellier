@@ -249,7 +249,7 @@ watch(
                 variant="soft"
                 :icon="isFavorited ? 'i-lucide-heart' : 'i-lucide-heart'"
                 :label="isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'"
-                :color="isFavorited ? 'red' : 'neutral'"
+                :color="isFavorited ? 'error' : 'neutral'"
                 :loading="favLoading"
                 @click="toggleFavorite"
               />
