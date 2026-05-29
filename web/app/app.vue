@@ -166,6 +166,18 @@ onMounted(async () => {
             ></span>
           </div>
 
+          <UButton
+            v-if="profile?.id"
+            :to="`https://buy.stripe.com/test_6oU5kD6OX9gB6DHark2go00?client_reference_id=${profile.id}`"
+            target="_blank"
+            icon="i-lucide-plus-circle"
+            label="Crédits"
+            size="sm"
+            variant="soft"
+            color="primary"
+            class="hidden sm:flex"
+          />
+
           <UDropdownMenu :items="userMenuItems">
             <div class="hidden sm:flex items-center gap-2 cursor-pointer">
               <UButton
