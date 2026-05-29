@@ -26,6 +26,7 @@
     "nuxt": "^4.4.6",
     "nuxt-auth-utils": "^0.5.29",
     "prisma": "^6.19.3",
+    "stripe": "^22.2.0",
     "tailwindcss": "^4.3.0",
     "zod": "^4.4.3"
   },
