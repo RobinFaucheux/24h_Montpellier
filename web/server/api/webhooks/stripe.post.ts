@@ -38,6 +38,13 @@ export default defineEventHandler(async (event) => {
     const userId = session.client_reference_id
 
     if (!userId) {
+      console.warn('Stripe webhook: no client_reference_id on session', session.id)
+      return { received: true }
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } })
+    if (!user) {
+      console.error(`Stripe webhook: user not found for id=${userId} (session=${session.id})`)
       return { received: true }
     }
 
@@ -45,6 +52,7 @@ export default defineEventHandler(async (event) => {
       where: { id: userId },
       data: { balance: { increment: TC_PER_PAYMENT } }
     })
+    console.log(`Stripe webhook: +${TC_PER_PAYMENT} SC credited to user ${userId}`)
   }
 
   return { received: true }
