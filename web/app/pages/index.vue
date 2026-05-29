@@ -12,10 +12,13 @@ const priceMax = ref('')
 const { ids: recentlyViewedIds, ready: recentlyViewedReady, clearRecentlyViewedListings } = useRecentlyViewedListings()
 
 // Fetch categories
-const { data: categories } = await useFetch('/api/categories')
+const { data: categories } = await useFetch('/api/categories', {
+  key: 'home-categories'
+})
 
 // Fetch recent listings
 const { data: recentData, status: recentStatus } = await useFetch('/api/listings', {
+  key: 'home-recent-listings',
   params: { limit: '8', sort: 'recent' }
 })
 
