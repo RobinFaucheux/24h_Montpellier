@@ -26,6 +26,10 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 
+# Ensure Stripe (external dep) is reachable from Nitro's output
+RUN mkdir -p .output/server/node_modules && \
+    ln -sf /app/node_modules/stripe .output/server/node_modules/stripe
+
 ENV NODE_ENV=production
 EXPOSE 3000
 
