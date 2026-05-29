@@ -50,6 +50,65 @@ const userMenuItems = computed(() => [
     }
   }]
 ])
+
+const toast = useToast()
+const route = useRoute()
+const hasUnreadMessages = ref(false)
+
+watch(() => route.path, (path) => {
+  if (path === '/mon-compte/messages') {
+    hasUnreadMessages.value = false
+  }
+})
+
+onMounted(async () => {
+  if (loggedIn.value) {
+    try {
+      // Check initial unread status
+      const { unread } = await $fetch('/api/users/me/unread')
+      hasUnreadMessages.value = unread
+
+      const { ticket } = await $fetch('/api/auth/ws-ticket')
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      const ws = new WebSocket(`${protocol}//${window.location.host}/_ws`)
+      
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ type: 'auth', ticket }))
+      }
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          if (data.type === 'notification') {
+            const msg = data.message
+            if (route.path === '/mon-compte/messages' && route.query.conversation === msg.conversationId) {
+              return
+            }
+            
+            if (route.path !== '/mon-compte/messages') {
+              hasUnreadMessages.value = true
+            }
+            
+            toast.add({
+              title: `Nouveau message de ${msg.sender?.name || 'un utilisateur'}`,
+              description: msg.content.length > 50 ? msg.content.substring(0, 50) + '...' : msg.content,
+              icon: 'i-lucide-message-circle',
+              color: 'primary',
+              actions: [{
+                label: 'Voir',
+                to: `/mon-compte/messages?conversation=${msg.conversationId}`
+              }]
+            })
+          }
+        } catch (e) {
+          console.error(e)
+        }
+      }
+    } catch (e) {
+      console.error('Failed to init global WS', e)
+    }
+  }
+})
 </script>
 
 <template>
@@ -87,13 +146,19 @@ const userMenuItems = computed(() => [
         <UColorModeButton />
 
         <template v-if="loggedIn">
-          <UButton
-            to="/mon-compte/messages"
-            icon="i-lucide-message-circle"
-            color="neutral"
-            variant="ghost"
-            aria-label="Messages"
-          />
+          <div class="relative">
+            <UButton
+              to="/mon-compte/messages"
+              icon="i-lucide-message-circle"
+              color="neutral"
+              variant="ghost"
+              aria-label="Messages"
+            />
+            <span
+              v-if="hasUnreadMessages"
+              class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-gray-900"
+            ></span>
+          </div>
 
           <UDropdownMenu :items="userMenuItems">
             <UButton

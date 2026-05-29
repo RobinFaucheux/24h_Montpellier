@@ -16,6 +16,12 @@ export default defineNuxtConfig({
     '/': { prerender: true }
   },
 
+  nitro: {
+    experimental: {
+      websocket: true
+    }
+  },
+
   runtimeConfig: {
     sessionPassword: process.env.NUXT_SESSION_PASSWORD || '',
     public: {

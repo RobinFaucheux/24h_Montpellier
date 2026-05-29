@@ -42,7 +42,7 @@ watch(() => route.query.conversation, (id) => {
   if (id && typeof id === 'string') {
     selectConversation(id)
   }
-})
+}, { immediate: true })
 </script>
 
 <template>
