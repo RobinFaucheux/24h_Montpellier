@@ -245,7 +245,7 @@ watch(
                 variant="soft"
                 :icon="isFavorited ? 'i-lucide-heart' : 'i-lucide-heart'"
                 :label="isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'"
-                :color="isFavorited ? 'red' : 'neutral'"
+                :color="isFavorited ? 'error' : 'neutral'"
                 :loading="favLoading"
                 @click="toggleFavorite"
               />
@@ -314,11 +314,13 @@ watch(
           <p class="text-sm text-muted">
             À propos de : <strong>{{ listing?.title }}</strong>
           </p>
-          <UFormField label="Votre message">
+          <UFormField label="Votre message" class="w-full">
             <UTextarea
               v-model="contactMessage"
               placeholder="Bonjour, je suis intéressé(e) par votre annonce..."
               :rows="4"
+              class="w-full"
+              style="width: 100%;"
             />
           </UFormField>
         </div>

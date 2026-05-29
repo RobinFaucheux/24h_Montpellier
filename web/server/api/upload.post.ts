@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Aucun fichier envoyé' })
   }
 
-  const uploadDir = join(process.cwd(), 'uploads')
+  const uploadDir = join(process.cwd(), 'public', 'uploads')
   await mkdir(uploadDir, { recursive: true })
 
   const urls: string[] = []

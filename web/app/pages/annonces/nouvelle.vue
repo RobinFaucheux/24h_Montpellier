@@ -88,6 +88,8 @@ function toggleCategory(id: string) {
               v-model="title"
               placeholder="Ex: iPhone 15 Pro Max - Excellent état"
               size="lg"
+              class="w-full"
+              style="width: 100%;"
             />
           </UFormField>
 
@@ -96,6 +98,8 @@ function toggleCategory(id: string) {
               v-model="description"
               placeholder="Décrivez votre article en détail : état, caractéristiques, raison de la vente..."
               :rows="6"
+              class="w-full"
+              style="width: 100%;"
             />
           </UFormField>
 
@@ -108,6 +112,8 @@ function toggleCategory(id: string) {
               step="0.01"
               icon="i-lucide-euro"
               size="lg"
+              class="w-full"
+              style="width: 100%;"
             />
           </UFormField>
         </div>
