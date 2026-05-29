@@ -15,7 +15,6 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
   if (!id) throw createError({ statusCode: 400, message: 'ID manquant' })
 
-  // Check ownership
   const listing = await prisma.listing.findUnique({ where: { id } })
   if (!listing) throw createError({ statusCode: 404, message: 'Annonce non trouvée' })
   if (listing.userId !== session.user.id) {
@@ -30,19 +29,18 @@ export default defineEventHandler(async (event) => {
 
   const { categoryIds, imageUrls, ...data } = result.data
 
-  // Update listing
   const updated = await prisma.listing.update({
     where: { id },
     data: {
       ...data,
-      // Replace categories if provided
+      // Replace all categories: delete existing join rows then recreate them.
       ...(categoryIds && {
         categories: {
           deleteMany: {},
           create: categoryIds.map(categoryId => ({ categoryId }))
         }
       }),
-      // Replace images if provided
+      // Replace all images: delete existing then recreate with preserved order.
       ...(imageUrls && {
         images: {
           deleteMany: {},
@@ -57,8 +55,5 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  return {
-    ...updated,
-    categories: updated.categories.map(c => c.category)
-  }
+  return { ...updated, categories: updated.categories.map(c => c.category) }
 })

@@ -13,43 +13,28 @@ export default defineEventHandler(async (event) => {
 
   const result = registerSchema.safeParse(body)
   if (!result.success) {
-    throw createError({
-      statusCode: 400,
-      message: result.error.issues[0].message
-    })
+    throw createError({ statusCode: 400, message: result.error.issues[0].message })
   }
 
   const { email, password, name, phone } = result.data
 
-  // Check if user already exists
+  // Reject duplicate emails before trying to insert (avoids a DB unique-constraint crash).
   const existingUser = await prisma.user.findUnique({ where: { email } })
   if (existingUser) {
-    throw createError({
-      statusCode: 409,
-      message: 'Un compte avec cet email existe déjà'
-    })
+    throw createError({ statusCode: 409, message: 'Un compte avec cet email existe déjà' })
   }
 
-  // Hash password
+  // bcrypt cost factor 12 — slow enough to resist brute-force, fast enough for UX.
   const passwordHash = await bcrypt.hash(password, 12)
 
-  // Create user
   const user = await prisma.user.create({
     data: { email, name, passwordHash, phone }
   })
 
-  // Set session
+  // Log the user in immediately after registration.
   await setUserSession(event, {
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name
-    }
+    user: { id: user.id, email: user.email, name: user.name }
   })
 
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name
-  }
+  return { id: user.id, email: user.email, name: user.name }
 })

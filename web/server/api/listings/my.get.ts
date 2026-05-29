@@ -1,3 +1,5 @@
+// Returns all listings belonging to the logged-in user, newest first.
+// Includes favorite and conversation counts so the dashboard can show engagement stats.
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
 

@@ -1,3 +1,5 @@
+// Deletes a listing — only its owner can do this.
+// Cascade rules in the schema automatically remove images, favorites, and conversations.
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
   const id = getRouterParam(event, 'id')

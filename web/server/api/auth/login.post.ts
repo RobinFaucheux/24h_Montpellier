@@ -11,44 +11,26 @@ export default defineEventHandler(async (event) => {
 
   const result = loginSchema.safeParse(body)
   if (!result.success) {
-    throw createError({
-      statusCode: 400,
-      message: result.error.issues[0].message
-    })
+    throw createError({ statusCode: 400, message: result.error.issues[0].message })
   }
 
   const { email, password } = result.data
 
-  // Find user
   const user = await prisma.user.findUnique({ where: { email } })
+  // Return the same error for wrong email and wrong password — avoids user enumeration.
   if (!user) {
-    throw createError({
-      statusCode: 401,
-      message: 'Email ou mot de passe incorrect'
-    })
+    throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
   }
 
-  // Verify password
   const valid = await bcrypt.compare(password, user.passwordHash)
   if (!valid) {
-    throw createError({
-      statusCode: 401,
-      message: 'Email ou mot de passe incorrect'
-    })
+    throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
   }
 
-  // Set session
+  // Store minimal user info in the encrypted session cookie (nuxt-auth-utils).
   await setUserSession(event, {
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name
-    }
+    user: { id: user.id, email: user.email, name: user.name }
   })
 
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name
-  }
+  return { id: user.id, email: user.email, name: user.name }
 })

@@ -2,6 +2,8 @@ import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { randomUUID } from 'crypto'
 
+// Accepts multipart form data, validates each file, saves to disk, and returns public URLs.
+// Files are stored under public/uploads/ which Nuxt serves as static assets.
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)
 
@@ -11,6 +13,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const uploadDir = join(process.cwd(), 'public', 'uploads')
+  // recursive: true is a no-op if the directory already exists.
   await mkdir(uploadDir, { recursive: true })
 
   const urls: string[] = []
@@ -18,28 +21,20 @@ export default defineEventHandler(async (event) => {
   for (const file of form) {
     if (!file.filename || !file.data) continue
 
-    // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
     if (file.type && !allowedTypes.includes(file.type)) {
-      throw createError({
-        statusCode: 400,
-        message: `Type de fichier non autorisé : ${file.type}`
-      })
+      throw createError({ statusCode: 400, message: `Type de fichier non autorisé : ${file.type}` })
     }
 
-    // Validate file size (max 5MB)
+    // Cap at 5 MB to avoid filling the disk with large uploads.
     if (file.data.length > 5 * 1024 * 1024) {
-      throw createError({
-        statusCode: 400,
-        message: 'Le fichier dépasse la taille maximale de 5 Mo'
-      })
+      throw createError({ statusCode: 400, message: 'Le fichier dépasse la taille maximale de 5 Mo' })
     }
 
+    // Use a UUID filename to avoid collisions and prevent path traversal attacks.
     const ext = file.filename.split('.').pop() || 'jpg'
     const filename = `${randomUUID()}.${ext}`
-    const filePath = join(uploadDir, filename)
-
-    await writeFile(filePath, file.data)
+    await writeFile(join(uploadDir, filename), file.data)
     urls.push(`/uploads/${filename}`)
   }
 

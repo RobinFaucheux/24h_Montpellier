@@ -16,44 +16,31 @@ export default defineEventHandler(async (event) => {
 
   const { listingId, message } = result.data
 
-  // Get listing and seller
   const listing = await prisma.listing.findUnique({ where: { id: listingId } })
   if (!listing) throw createError({ statusCode: 404, message: 'Annonce non trouvée' })
 
+  // Prevent users from messaging themselves.
   if (listing.userId === session.user.id) {
     throw createError({ statusCode: 400, message: 'Vous ne pouvez pas contacter votre propre annonce' })
   }
 
-  // Find or create conversation
+  // Upsert the conversation — the schema enforces a unique constraint on (listingId, buyerId)
+  // so a buyer can only have one conversation per listing.
   let conversation = await prisma.conversation.findUnique({
-    where: {
-      listingId_buyerId: {
-        listingId,
-        buyerId: session.user.id
-      }
-    }
+    where: { listingId_buyerId: { listingId, buyerId: session.user.id } }
   })
 
   if (!conversation) {
     conversation = await prisma.conversation.create({
-      data: {
-        listingId,
-        buyerId: session.user.id,
-        sellerId: listing.userId
-      }
+      data: { listingId, buyerId: session.user.id, sellerId: listing.userId }
     })
   }
 
-  // Create message
   await prisma.message.create({
-    data: {
-      content: message,
-      senderId: session.user.id,
-      conversationId: conversation.id
-    }
+    data: { content: message, senderId: session.user.id, conversationId: conversation.id }
   })
 
-  // Update conversation timestamp
+  // Touch updatedAt so the conversation floats to the top of the list.
   await prisma.conversation.update({
     where: { id: conversation.id },
     data: { updatedAt: new Date() }

@@ -16,10 +16,7 @@ export default defineEventHandler(async (event) => {
 
   const result = createSchema.safeParse(body)
   if (!result.success) {
-    throw createError({
-      statusCode: 400,
-      message: result.error.issues[0].message
-    })
+    throw createError({ statusCode: 400, message: result.error.issues[0].message })
   }
 
   const { title, description, price, city, region, categoryIds, imageUrls } = result.data
@@ -32,13 +29,11 @@ export default defineEventHandler(async (event) => {
       city,
       region,
       userId: session.user.id,
-      categories: {
-        create: categoryIds.map(categoryId => ({ categoryId }))
-      },
+      // Create the join-table rows for each selected category in the same transaction.
+      categories: { create: categoryIds.map(categoryId => ({ categoryId })) },
+      // Images are optional — no images object is created if none were uploaded.
       images: imageUrls
-        ? {
-            create: imageUrls.map((url, index) => ({ url, order: index }))
-          }
+        ? { create: imageUrls.map((url, index) => ({ url, order: index })) }
         : undefined
     },
     include: {
@@ -48,8 +43,6 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  return {
-    ...listing,
-    categories: listing.categories.map(c => c.category)
-  }
+  // Flatten the join table so callers receive category objects directly.
+  return { ...listing, categories: listing.categories.map(c => c.category) }
 })

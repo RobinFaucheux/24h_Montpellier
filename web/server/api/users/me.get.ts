@@ -1,3 +1,5 @@
+// Returns the full profile of the logged-in user, including their SC balance.
+// Only exposes safe fields — passwordHash is never selected.
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
 
@@ -16,9 +18,7 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  if (!user) {
-    throw createError({ statusCode: 404, message: 'Utilisateur non trouvé' })
-  }
+  if (!user) throw createError({ statusCode: 404, message: 'Utilisateur non trouvé' })
 
   return user
 })

@@ -5,6 +5,8 @@ const messageSchema = z.object({
   content: z.string().min(1, 'Le message ne peut pas être vide')
 })
 
+// HTTP fallback for sending messages — the WebSocket handler is the primary path.
+// This is used when the WS connection is not yet established.
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
   const body = await readBody(event)
@@ -16,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
   const { conversationId, content } = result.data
 
-  // Check conversation access
+  // Verify the user is actually part of this conversation before writing.
   const conversation = await prisma.conversation.findUnique({ where: { id: conversationId } })
   if (!conversation) throw createError({ statusCode: 404, message: 'Conversation non trouvée' })
   if (conversation.buyerId !== session.user.id && conversation.sellerId !== session.user.id) {
@@ -24,17 +26,11 @@ export default defineEventHandler(async (event) => {
   }
 
   const message = await prisma.message.create({
-    data: {
-      content,
-      senderId: session.user.id,
-      conversationId
-    },
-    include: {
-      sender: { select: { id: true, name: true } }
-    }
+    data: { content, senderId: session.user.id, conversationId },
+    include: { sender: { select: { id: true, name: true } } }
   })
 
-  // Update conversation timestamp
+  // Touch updatedAt so the conversation floats to the top of the list.
   await prisma.conversation.update({
     where: { id: conversationId },
     data: { updatedAt: new Date() }

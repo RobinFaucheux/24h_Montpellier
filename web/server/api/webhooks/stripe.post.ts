@@ -1,8 +1,11 @@
 import type Stripe from 'stripe'
 
-const TC_PER_PAYMENT = 10
+// ScamCoins credited to the user per successful payment.
+const SC_PER_PAYMENT = 10
 
 export default defineEventHandler(async (event) => {
+  // Read directly from process.env — bypasses runtimeConfig caching which can
+  // hold stale values across hot reloads in dev.
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
   if (!webhookSecret) {
     console.error('STRIPE_WEBHOOK_SECRET is not set')
@@ -16,10 +19,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Missing stripe-signature header' })
   }
 
+  // readRawBody(event, false) returns a Buffer — required by Stripe's signature check,
+  // which computes an HMAC over the exact raw bytes. Parsing then re-serializing the body
+  // would alter the bytes and break verification.
   const rawBody = await readRawBody(event, false)
-  if (!rawBody) {
-    throw createError({ statusCode: 400, message: 'Empty body' })
-  }
+  if (!rawBody) throw createError({ statusCode: 400, message: 'Empty body' })
 
   let stripeEvent: Stripe.Event
   try {
@@ -35,6 +39,9 @@ export default defineEventHandler(async (event) => {
 
   if (stripeEvent.type === 'checkout.session.completed') {
     const session = stripeEvent.data.object as Stripe.Checkout.Session
+
+    // client_reference_id is appended to the payment link URL by the frontend:
+    // ?client_reference_id=<userId> — this is how we know who paid.
     const userId = session.client_reference_id
 
     if (!userId) {
@@ -42,6 +49,8 @@ export default defineEventHandler(async (event) => {
       return { received: true }
     }
 
+    // Guard against stale user IDs (e.g. after a DB wipe).
+    // Return 200 so Stripe stops retrying — we just can't credit a non-existent user.
     const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } })
     if (!user) {
       console.error(`Stripe webhook: user not found for id=${userId} (session=${session.id})`)
@@ -50,10 +59,11 @@ export default defineEventHandler(async (event) => {
 
     await prisma.user.update({
       where: { id: userId },
-      data: { balance: { increment: TC_PER_PAYMENT } }
+      data: { balance: { increment: SC_PER_PAYMENT } }
     })
-    console.log(`Stripe webhook: +${TC_PER_PAYMENT} SC credited to user ${userId}`)
+    console.log(`Stripe webhook: +${SC_PER_PAYMENT} SC credited to user ${userId}`)
   }
 
+  // Always return 200 for unhandled event types — Stripe retries on non-2xx responses.
   return { received: true }
 })
