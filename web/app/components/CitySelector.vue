@@ -1,18 +1,39 @@
 <script setup lang="ts">
+type CityValue = {
+  name: string
+  code: string
+  codeDepartement: string
+  codeRegion: string
+  region?: string
+}
+
+type CitySuggestion = {
+  nom: string
+  code: string
+  codeDepartement: string
+  codeRegion: string
+  codesPostaux: string[]
+}
+
+type CityItem = CityValue & {
+  codesPostaux?: string[]
+}
+
 const props = defineProps<{
-  modelValue?: { name: string; code: string; codeDepartement: string; codeRegion: string; region?: string } | null
+  modelValue?: CityValue | null
   placeholder?: string
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: { name: string; code: string; codeDepartement: string; codeRegion: string; region?: string } | null]
+  'update:modelValue': [value: CityValue | null]
 }>()
 
-const searchQuery = ref(props.modelValue?.name || '')
-const suggestions = ref<Array<{ nom: string; code: string; codeDepartement: string; codeRegion: string; codesPostaux: string[]; population: number }>>([])
-const showSuggestions = ref(false)
+const selectedCity = ref<CityItem | null>(props.modelValue ? toCityItem(props.modelValue) : null)
+const searchTerm = ref(props.modelValue?.name || '')
+const cities = ref<CityItem[]>([])
 const loading = ref(false)
 let debounceTimer: ReturnType<typeof setTimeout>
+let searchId = 0
 
 // Mapping code region -> nom region
 const regionNames: Record<string, string> = {
@@ -36,114 +57,121 @@ const regionNames: Record<string, string> = {
   '06': 'Mayotte'
 }
 
+function toCityItem(city: CityValue): CityItem {
+  return {
+    ...city,
+    region: city.region || regionNames[city.codeRegion] || ''
+  }
+}
+
+function toCityValue(city: CityItem): CityValue {
+  return {
+    name: city.name,
+    code: city.code,
+    codeDepartement: city.codeDepartement,
+    codeRegion: city.codeRegion,
+    region: city.region || regionNames[city.codeRegion] || ''
+  }
+}
+
 async function searchCities(query: string) {
+  const currentSearchId = ++searchId
+
   if (query.length < 2) {
-    suggestions.value = []
+    cities.value = []
+    loading.value = false
     return
   }
 
   loading.value = true
   try {
-    const response = await $fetch<Array<{ nom: string; code: string; codeDepartement: string; codeRegion: string; codesPostaux: string[]; population: number }>>(
+    const response = await $fetch<CitySuggestion[]>(
       `https://geo.api.gouv.fr/communes`,
       {
         params: {
           nom: query,
-          fields: 'nom,code,codesPostaux,codeDepartement,codeRegion,population',
-          limit: 8,
-          boost: 'population'
+          fields: 'nom,code,codesPostaux,codeDepartement,codeRegion',
+          limit: 8
         }
       }
     )
-    suggestions.value = response
+    if (currentSearchId !== searchId) return
+
+    cities.value = response.map(city => ({
+      name: city.nom,
+      code: city.code,
+      codeDepartement: city.codeDepartement,
+      codeRegion: city.codeRegion,
+      region: regionNames[city.codeRegion] || '',
+      codesPostaux: city.codesPostaux
+    }))
   } catch {
-    suggestions.value = []
+    if (currentSearchId === searchId) {
+      cities.value = []
+    }
   } finally {
-    loading.value = false
+    if (currentSearchId === searchId) {
+      loading.value = false
+    }
   }
 }
 
-function onInput() {
+watch(searchTerm, (query) => {
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(() => {
-    searchCities(searchQuery.value)
-    showSuggestions.value = true
+    searchCities(query)
   }, 300)
-}
+})
 
-function selectCity(city: typeof suggestions.value[0]) {
-  const region = regionNames[city.codeRegion] || ''
-  searchQuery.value = city.nom
-  showSuggestions.value = false
-  emit('update:modelValue', {
-    name: city.nom,
-    code: city.code,
-    codeDepartement: city.codeDepartement,
-    codeRegion: city.codeRegion,
-    region
-  })
-}
+watch(selectedCity, (city) => {
+  const value = city ? toCityValue(city) : null
 
-function handleBlur() {
-  // Delay to allow click on suggestion
-  setTimeout(() => {
-    showSuggestions.value = false
-  }, 200)
-}
+  if (value?.code === props.modelValue?.code && value?.name === props.modelValue?.name) return
 
-function clear() {
-  searchQuery.value = ''
-  suggestions.value = []
-  emit('update:modelValue', null)
-}
+  if (!value) {
+    searchTerm.value = ''
+    cities.value = []
+  } else {
+    searchTerm.value = value.name
+  }
+
+  emit('update:modelValue', value)
+})
+
+watch(() => props.modelValue, (city) => {
+  if (city?.code === selectedCity.value?.code && city?.name === selectedCity.value?.name) return
+
+  selectedCity.value = city ? toCityItem(city) : null
+  searchTerm.value = city?.name || ''
+})
+
+onBeforeUnmount(() => {
+  clearTimeout(debounceTimer)
+})
 </script>
 
 <template>
-  <div class="relative">
-    <UInput
-      v-model="searchQuery"
-      :placeholder="placeholder || 'Rechercher une ville...'"
-      icon="i-lucide-map-pin"
-      :loading="loading"
-      autocomplete="off"
-      @input="onInput"
-      @focus="searchQuery.length >= 2 && (showSuggestions = true)"
-      @blur="handleBlur"
-    >
-      <template #trailing v-if="searchQuery">
-        <UButton
-          icon="i-lucide-x"
-          variant="link"
-          color="neutral"
-          size="xs"
-          @click="clear"
-          aria-label="Effacer"
-        />
-      </template>
-    </UInput>
-
-    <!-- Suggestions dropdown -->
-    <div
-      v-if="showSuggestions && suggestions.length"
-      class="absolute z-50 top-full left-0 right-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-64 overflow-y-auto"
-    >
-      <button
-        v-for="city in suggestions"
-        :key="city.code"
-        class="w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-3 transition-colors"
-        @mousedown.prevent="selectCity(city)"
-      >
-        <UIcon name="i-lucide-map-pin" class="text-muted shrink-0" />
-        <div class="min-w-0">
-          <p class="font-medium text-sm truncate">{{ city.nom }}</p>
-          <p class="text-xs text-muted">
-            {{ city.codesPostaux?.[0] }} · {{ regionNames[city.codeRegion] || '' }}
-          </p>
-        </div>
-        <span class="ml-auto text-xs text-muted shrink-0">
-          {{ city.population?.toLocaleString('fr-FR') }} hab.
-        </span>
-      </button>
-    </div>
-  </div>
+  <UInputMenu
+    v-model="selectedCity"
+    v-model:search-term="searchTerm"
+    :items="cities"
+    :placeholder="placeholder || 'Rechercher une ville...'"
+    icon="i-lucide-map-pin"
+    :loading="loading"
+    label-key="name"
+    by="code"
+    ignore-filter
+    clear
+    :reset-search-term-on-blur="false"
+    :reset-search-term-on-select="false"
+  >
+    <template #item-label="{ item }">
+      <div class="min-w-0">
+        <p class="font-medium text-sm truncate">{{ item.name }}</p>
+        <p class="text-xs text-muted">
+          {{ item.codesPostaux?.[0] }} · {{ item.region }}
+        </p>
+      </div>
+    </template>
+  </UInputMenu>
 </template>
