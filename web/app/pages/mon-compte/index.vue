@@ -76,7 +76,7 @@ async function deleteAccount() {
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto px-4 py-8">
+  <div class="max-w-6xl mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-2">Mon profil</h1>
     <p class="text-muted mb-8">Gérez vos informations personnelles</p>
 
@@ -132,7 +132,7 @@ async function deleteAccount() {
         </div>
       </UCard>
 
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-end">
         <UButton type="submit" size="lg" icon="i-lucide-save" label="Enregistrer" :loading="loading" />
       </div>
     </form>

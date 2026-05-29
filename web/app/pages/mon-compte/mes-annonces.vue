@@ -46,7 +46,7 @@ function formatDate(date: string) {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="max-w-6xl mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-2">
       <h1 class="text-3xl font-bold">Mes annonces</h1>
       <UButton to="/annonces/nouvelle" icon="i-lucide-plus" label="Nouvelle annonce" />
