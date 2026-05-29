@@ -5,7 +5,7 @@ useSeoMeta({
 })
 
 const searchQuery = ref('')
-const selectedCategoryItem = ref<{ label: string, value: string } | null>(null)
+const selectedCategoryItem = ref<{ label: string, value: string, icon: string } | null>(null)
 const cityRef = ref<{ name: string; region?: string } | null>(null)
 const priceMin = ref('')
 const priceMax = ref('')
@@ -19,7 +19,7 @@ const categoryItems = computed(() => {
   if (!cats?.length) return [{ label: 'Toutes catégories', value: '' }]
   return [
     { label: 'Toutes catégories', value: '' },
-    ...cats.map(c => ({ label: c.name, value: c.slug }))
+    ...cats.map(c => ({ label: c.name, value: c.slug, icon: c.icon }))
   ]
 })
 
@@ -111,8 +111,8 @@ function clearRecentlyViewed() {
               <USelectMenu
                 v-model="selectedCategoryItem"
                 :items="categoryItems"
+                :icon="selectedCategoryItem?.icon"
                 placeholder="Catégorie"
-                icon="i-lucide-tag"
                 class="w-full"
               />
               <CitySelector
