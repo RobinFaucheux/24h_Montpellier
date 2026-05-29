@@ -5,7 +5,7 @@ const updateSchema = z.object({
   description: z.string().min(10).optional(),
   price: z.number().min(0).optional(),
   city: z.string().min(1).optional(),
-  region: z.string().min(1).optional(),
+  region: z.string().optional(),
   categoryIds: z.array(z.string()).min(1).optional(),
   imageUrls: z.array(z.string()).optional()
 })

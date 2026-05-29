@@ -149,7 +149,7 @@ function clearRecentlyViewed() {
             v-for="cat in categories"
             :key="cat.slug"
             :category="cat"
-            :active="selectedCategory === cat.slug"
+            :active="selectedCategoryItem?.value === cat.slug"
             @click="selectCategory(cat.slug)"
           />
         </div>

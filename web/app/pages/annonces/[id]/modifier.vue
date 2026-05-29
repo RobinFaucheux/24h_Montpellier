@@ -129,6 +129,7 @@ function toggleCategory(id: string) {
           <UButton
             v-for="cat in categories"
             :key="cat.id"
+            type="button"
             :variant="categoryIds.includes(cat.id) ? 'solid' : 'outline'"
             :color="categoryIds.includes(cat.id) ? 'primary' : 'neutral'"
             size="sm"
