@@ -1,9 +1,10 @@
 FROM node:22-alpine
+ENV CI=true
 RUN corepack enable && corepack prepare pnpm@11.1.3 --activate
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install
+RUN pnpm install --ignore-scripts
 
 COPY prisma ./prisma
 RUN npx prisma generate
