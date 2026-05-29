@@ -1,5 +1,5 @@
 export const CURRENCY_SYMBOL = 'TC'
-export const CURRENCY_NAME = 'TrocCoins'
+export const CURRENCY_NAME = 'ScamCoins'
 
 export function useCurrency() {
   function formatPrice(amount: number): string {
