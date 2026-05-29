@@ -26,4 +26,5 @@ jobs:
           script: |
             cd 24h_Montpellier/
             git pull
+            cd web/
             docker compose up -d --build
