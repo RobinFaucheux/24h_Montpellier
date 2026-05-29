@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const { loggedIn, user } = useUserSession()
+const { recordViewedListing } = useRecentlyViewedListings()
 
 const { data: listing, status, refresh } = await useFetch(`/api/listings/${route.params.id}`)
 
@@ -103,6 +104,16 @@ function nextImage() {
   if (!listing.value?.images?.length) return
   currentImageIndex.value = (currentImageIndex.value + 1) % listing.value.images.length
 }
+
+watch(
+  () => listing.value?.id,
+  (id) => {
+    if (import.meta.client && id) {
+      recordViewedListing(id)
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
