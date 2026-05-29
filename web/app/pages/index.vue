@@ -33,7 +33,7 @@ function selectCategory(slug: string) {
 <template>
   <div>
     <!-- Hero Section -->
-    <section class="hero-gradient py-20 px-4 -mx-4 sm:-mx-6 lg:-mx-8">
+    <section class="hero-gradient py-20 px-4">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 tracking-tight">
           Trouvez la
