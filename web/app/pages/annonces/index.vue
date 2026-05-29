@@ -9,12 +9,17 @@ const router = useRouter()
 
 // Filters
 const searchQuery = ref((route.query.q as string) || '')
-const selectedCategory = ref((route.query.category as string) || '')
+const selectedCategoryItem = ref<{ label: string, value: string } | null>(null)
 const selectedCity = ref((route.query.city as string) || '')
 const selectedRegion = ref((route.query.region as string) || '')
 const priceMin = ref((route.query.priceMin as string) || '')
 const priceMax = ref((route.query.priceMax as string) || '')
-const sortBy = ref((route.query.sort as string) || 'recent')
+const sortOptions = [
+  { label: 'Plus récentes', value: 'recent' },
+  { label: 'Prix croissant', value: 'price_asc' },
+  { label: 'Prix décroissant', value: 'price_desc' }
+]
+const sortByItem = ref(sortOptions.find(o => o.value === (route.query.sort as string)) ?? sortOptions[0])
 const currentPage = ref(parseInt((route.query.page as string) || '1'))
 
 const showFilters = ref(false)
@@ -22,15 +27,27 @@ const showFilters = ref(false)
 // Fetch categories
 const { data: categories } = await useFetch('/api/categories')
 
+const categoryItems = computed(() => [
+  { label: 'Toutes les catégories', value: '' },
+  ...(categories.value || []).map(c => ({ label: c.name, value: c.slug }))
+])
+
+// Init selected category from URL
+if (route.query.category) {
+  const slug = route.query.category as string
+  const match = (categories.value || []).find(c => c.slug === slug)
+  if (match) selectedCategoryItem.value = { label: match.name, value: match.slug }
+}
+
 // Build query params
 const queryParams = computed(() => ({
   q: searchQuery.value || undefined,
-  category: selectedCategory.value || undefined,
+  category: selectedCategoryItem.value?.value || undefined,
   city: selectedCity.value || undefined,
   region: selectedRegion.value || undefined,
   priceMin: priceMin.value || undefined,
   priceMax: priceMax.value || undefined,
-  sort: sortBy.value,
+  sort: sortByItem.value.value,
   page: String(currentPage.value),
   limit: '20'
 }))
@@ -40,13 +57,6 @@ const { data, status, refresh } = await useFetch('/api/listings', {
   params: queryParams,
   watch: [queryParams]
 })
-
-// Sort options
-const sortOptions = [
-  { label: 'Plus récentes', value: 'recent' },
-  { label: 'Prix croissant', value: 'price_asc' },
-  { label: 'Prix décroissant', value: 'price_desc' }
-]
 
 // Update URL when filters change
 watch(queryParams, (params) => {
@@ -60,12 +70,12 @@ function handleSearch(query: string) {
 
 function clearFilters() {
   searchQuery.value = ''
-  selectedCategory.value = ''
+  selectedCategoryItem.value = null
   selectedCity.value = ''
   selectedRegion.value = ''
   priceMin.value = ''
   priceMax.value = ''
-  sortBy.value = 'recent'
+  sortByItem.value = sortOptions[0]
   currentPage.value = 1
 }
 
@@ -83,7 +93,7 @@ watch(cityRef, (val) => {
 })
 
 const hasActiveFilters = computed(() => {
-  return searchQuery.value || selectedCategory.value || selectedCity.value || priceMin.value || priceMax.value
+  return searchQuery.value || selectedCategoryItem.value?.value || selectedCity.value || priceMin.value || priceMax.value
 })
 </script>
 
@@ -121,9 +131,8 @@ const hasActiveFilters = computed(() => {
       <div class="ml-auto flex items-center gap-2">
         <span class="text-sm text-muted">Trier par :</span>
         <USelectMenu
-          v-model="sortBy"
+          v-model="sortByItem"
           :items="sortOptions"
-          value-key="value"
           class="w-44"
         />
       </div>
@@ -137,10 +146,10 @@ const hasActiveFilters = computed(() => {
             <!-- Category -->
             <UFormField label="Catégorie">
               <USelectMenu
-                v-model="selectedCategory"
-                :items="[{ label: 'Toutes les catégories', value: '' }, ...(categories || []).map(c => ({ label: c.name, value: c.slug }))]"
-                value-key="value"
+                v-model="selectedCategoryItem"
+                :items="categoryItems"
                 placeholder="Choisir..."
+                class="w-full"
               />
             </UFormField>
 

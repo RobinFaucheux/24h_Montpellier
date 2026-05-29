@@ -5,13 +5,22 @@ useSeoMeta({
 })
 
 const searchQuery = ref('')
-const selectedCategory = ref('')
+const selectedCategoryItem = ref<{ label: string, value: string } | null>(null)
 const cityRef = ref<{ name: string; region?: string } | null>(null)
 const priceMin = ref('')
 const priceMax = ref('')
 
 // Fetch categories
-const { data: categories } = await useFetch('/api/categories')
+const { data: categories } = await useFetch('/api/categories', { key: 'categories' })
+
+const categoryItems = computed(() => {
+  const cats = categories.value
+  if (!cats?.length) return [{ label: 'Toutes catégories', value: '' }]
+  return [
+    { label: 'Toutes catégories', value: '' },
+    ...cats.map(c => ({ label: c.name, value: c.slug }))
+  ]
+})
 
 // Fetch recent listings
 const { data: recentData, status: recentStatus } = await useFetch('/api/listings', {
@@ -21,7 +30,7 @@ const { data: recentData, status: recentStatus } = await useFetch('/api/listings
 function handleSearch() {
   const query: Record<string, string> = {}
   if (searchQuery.value) query.q = searchQuery.value
-  if (selectedCategory.value) query.category = selectedCategory.value
+  if (selectedCategoryItem.value?.value) query.category = selectedCategoryItem.value.value
   if (cityRef.value?.name) query.city = cityRef.value.name
   if (cityRef.value?.region) query.region = cityRef.value.region
   if (priceMin.value) query.priceMin = priceMin.value
@@ -81,11 +90,11 @@ function selectCategory(slug: string) {
             <!-- Filters row -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
               <USelectMenu
-                v-model="selectedCategory"
-                :items="[{ label: 'Toutes catégories', value: '' }, ...(categories || []).map(c => ({ label: c.name, value: c.slug }))]"
-                value-key="value"
+                v-model="selectedCategoryItem"
+                :items="categoryItems"
                 placeholder="Catégorie"
                 icon="i-lucide-tag"
+                class="w-full"
               />
               <CitySelector
                 v-model="cityRef"
