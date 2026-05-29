@@ -318,11 +318,13 @@ watch(
           <p class="text-sm text-muted">
             À propos de : <strong>{{ listing?.title }}</strong>
           </p>
-          <UFormField label="Votre message">
+          <UFormField label="Votre message" class="w-full">
             <UTextarea
               v-model="contactMessage"
               placeholder="Bonjour, je suis intéressé(e) par votre annonce..."
               :rows="4"
+              class="w-full"
+              style="width: 100%;"
             />
           </UFormField>
         </div>

@@ -96,13 +96,13 @@ function toggleCategory(id: string) {
         </template>
         <div class="space-y-4">
           <UFormField label="Titre de l'annonce" required>
-            <UInput v-model="title" size="lg" />
+            <UInput v-model="title" size="lg" class="w-full" style="width: 100%;" />
           </UFormField>
           <UFormField label="Description" required>
-            <UTextarea v-model="description" :rows="6" />
+            <UTextarea v-model="description" :rows="6" class="w-full" style="width: 100%;" />
           </UFormField>
           <UFormField label="Prix (€)" required>
-            <UInput v-model.number="price" type="number" min="0" step="0.01" icon="i-lucide-euro" size="lg" />
+            <UInput v-model.number="price" type="number" min="0" step="0.01" icon="i-lucide-euro" size="lg" class="w-full" style="width: 100%;" />
           </UFormField>
         </div>
       </UCard>
