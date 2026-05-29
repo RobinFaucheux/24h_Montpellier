@@ -64,6 +64,8 @@ async function register() {
               placeholder="Marie Dupont"
               icon="i-lucide-user"
               size="lg"
+              class="w-full"
+              style="width: 100%;"
               required
               autofocus
             />
@@ -76,6 +78,8 @@ async function register() {
               placeholder="votre@email.fr"
               icon="i-lucide-mail"
               size="lg"
+              class="w-full"
+              style="width: 100%;"
               required
             />
           </UFormField>
@@ -87,6 +91,8 @@ async function register() {
               placeholder="06 12 34 56 78"
               icon="i-lucide-phone"
               size="lg"
+              class="w-full"
+              style="width: 100%;"
             />
           </UFormField>
 
@@ -97,6 +103,8 @@ async function register() {
               placeholder="Minimum 6 caractères"
               icon="i-lucide-lock"
               size="lg"
+              class="w-full"
+              style="width: 100%;"
               required
             />
           </UFormField>
@@ -108,6 +116,8 @@ async function register() {
               placeholder="Retapez votre mot de passe"
               icon="i-lucide-lock"
               size="lg"
+              class="w-full"
+              style="width: 100%;"
               required
             />
           </UFormField>

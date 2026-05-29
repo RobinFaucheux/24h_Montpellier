@@ -54,6 +54,8 @@ async function login() {
               placeholder="votre@email.fr"
               icon="i-lucide-mail"
               size="lg"
+              class="w-full"
+              style="width: 100%;"
               required
               autofocus
             />
@@ -66,6 +68,8 @@ async function login() {
               placeholder="••••••••"
               icon="i-lucide-lock"
               size="lg"
+              class="w-full"
+              style="width: 100%;"
               required
             />
           </UFormField>
