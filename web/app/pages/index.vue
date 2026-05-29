@@ -5,7 +5,10 @@ useSeoMeta({
 })
 
 const searchQuery = ref('')
-const selectedCategory = ref<string | null>(null)
+const selectedCategory = ref('')
+const cityRef = ref<{ name: string; region?: string } | null>(null)
+const priceMin = ref('')
+const priceMax = ref('')
 
 // Fetch categories
 const { data: categories } = await useFetch('/api/categories')
@@ -15,11 +18,15 @@ const { data: recentData, status: recentStatus } = await useFetch('/api/listings
   params: { limit: '8', sort: 'recent' }
 })
 
-function handleSearch(query: string) {
-  navigateTo({
-    path: '/annonces',
-    query: { q: query }
-  })
+function handleSearch() {
+  const query: Record<string, string> = {}
+  if (searchQuery.value) query.q = searchQuery.value
+  if (selectedCategory.value) query.category = selectedCategory.value
+  if (cityRef.value?.name) query.city = cityRef.value.name
+  if (cityRef.value?.region) query.region = cityRef.value.region
+  if (priceMin.value) query.priceMin = priceMin.value
+  if (priceMax.value) query.priceMax = priceMax.value
+  navigateTo({ path: '/annonces', query })
 }
 
 function selectCategory(slug: string) {
@@ -44,13 +51,63 @@ function selectCategory(slug: string) {
           Des milliers d'annonces entre particuliers. Achetez, vendez et échangez en toute simplicité.
         </p>
 
-        <div class="max-w-2xl mx-auto">
-          <SearchBar
-            v-model="searchQuery"
-            placeholder="Que recherchez-vous ?"
-            @search="handleSearch"
-          />
-        </div>
+        <UCard class="max-w-3xl mx-auto" :ui="{ body: 'p-4' }">
+          <form class="space-y-3" @submit.prevent="handleSearch">
+            <!-- Search input -->
+            <div class="flex gap-2">
+              <UInput
+                v-model="searchQuery"
+                placeholder="Que recherchez-vous ?"
+                icon="i-lucide-search"
+                size="lg"
+                class="flex-1"
+              />
+              <UButton
+                type="submit"
+                label="Rechercher"
+                icon="i-lucide-search"
+                size="lg"
+                class="hidden sm:flex"
+              />
+              <UButton
+                type="submit"
+                icon="i-lucide-search"
+                size="lg"
+                class="sm:hidden"
+                aria-label="Rechercher"
+              />
+            </div>
+
+            <!-- Filters row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <USelectMenu
+                v-model="selectedCategory"
+                :items="[{ label: 'Toutes catégories', value: '' }, ...(categories || []).map(c => ({ label: c.name, value: c.slug }))]"
+                value-key="value"
+                placeholder="Catégorie"
+                icon="i-lucide-tag"
+              />
+              <CitySelector
+                v-model="cityRef"
+                placeholder="Ville"
+              />
+              <UInput
+                v-model="priceMin"
+                type="number"
+                placeholder="Prix min (€)"
+                icon="i-lucide-euro"
+                min="0"
+              />
+              <UInput
+                v-model="priceMax"
+                type="number"
+                placeholder="Prix max (€)"
+                icon="i-lucide-euro"
+                min="0"
+              />
+            </div>
+          </form>
+        </UCard>
       </div>
     </section>
 

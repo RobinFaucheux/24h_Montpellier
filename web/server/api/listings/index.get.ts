@@ -30,10 +30,17 @@ export default defineEventHandler(async (event) => {
   }
 
   if (q) {
-    where.OR = [
-      { title: { contains: q, mode: 'insensitive' } },
-      { description: { contains: q, mode: 'insensitive' } }
-    ]
+    const words = q.trim().split(/\s+/).filter(Boolean)
+    where.AND = words.map(word => ({
+      OR: [
+        { title: { contains: word, mode: 'insensitive' } },
+        { description: { contains: word, mode: 'insensitive' } },
+        { city: { contains: word, mode: 'insensitive' } },
+        { region: { contains: word, mode: 'insensitive' } },
+        { categories: { some: { category: { name: { contains: word, mode: 'insensitive' } } } } },
+        { user: { name: { contains: word, mode: 'insensitive' } } }
+      ]
+    }))
   }
 
   if (category) {
