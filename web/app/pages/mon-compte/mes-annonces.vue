@@ -37,7 +37,7 @@ async function deleteListing() {
 }
 
 function formatPrice(price: number) {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(price)
+  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price)
 }
 
 function formatDate(date: string) {

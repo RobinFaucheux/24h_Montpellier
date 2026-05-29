@@ -105,7 +105,7 @@ function toggleCategory(id: string) {
               type="number"
               placeholder="0"
               min="0"
-              step="1"
+              step="0.01"
               icon="i-lucide-euro"
               size="lg"
             />
